@@ -49645,7 +49645,7 @@ Rigidbody:
   m_GameObject: {fileID: 615520277}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 3
+  m_Drag: 10
   m_AngularDrag: 10
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -84860,7 +84860,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uguiEmitter: {fileID: 612120569}
   _sceneData: {fileID: 1429762067}
-  _playerSettings: {fileID: 11400000, guid: 7198474ca8e95b54597ae6d1759dca9b, type: 2}
+  _playerSettings: {fileID: 11400000, guid: c4fa2342c04b8554e87061c35d0f1f6a, type: 2}
   _coinSettings: {fileID: 11400000, guid: 623110432466a7a498ab13da8a991d16, type: 2}
   _cameraSettings: {fileID: 11400000, guid: b1baa9a35fb6ebc408ec343b0846e11e, type: 2}
 --- !u!4 &1282568856
@@ -109749,7 +109749,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 310.4
+  m_fontSize: 200.95
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

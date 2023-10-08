@@ -5,22 +5,17 @@ using UnityEngine;
 
 namespace Client {
     sealed class PlayerMoveSystem : IEcsRunSystem 
-    {      
-
-        readonly EcsFilterInject<Inc<ForwardMove, HorizontalMove, Player, InputSwipeMagnitude>> _filter = default;
+    {  
+        readonly EcsFilterInject<Inc<ForwardMove, HorizontalMove, Player, InputSwipeMagnitude, View>> _filter = default;
              
         readonly EcsPoolInject<ForwardMove> _forwardMovePool = default;
         readonly EcsPoolInject<HorizontalMove> _horizontalMovePool = default;
         readonly EcsPoolInject<InputSwipeMagnitude>_inputSwipePool = default;
         readonly EcsPoolInject<View> _viewPool = default;
 
-        readonly EcsCustomInject<SceneData> _sceneData = default;
         readonly EcsCustomInject<PlayerSettings> _playerSettings = default;
 
-        float _forwardForce = 0f;  
-
-        private float _xVelocity = 0f;
-        private float _xStopAcceleration = 10f;
+        float _forwardForce = 0f;         
        
 
         public void Run (IEcsSystems systems) 
@@ -53,10 +48,8 @@ namespace Client {
                 #endregion
 
 
-                #region "HorizontalMove in Bounds"
-
-                if (viewComp.Transform.position.x <= _sceneData.Value.XGroundBounds.y && viewComp.Transform.position.x >= _sceneData.Value.XGroundBounds.x)
-                {                   
+                #region "HorizontalMove"
+                                 
                     if (horizontalMoveComp.IsMoving)
                     {
                         if (magnitude > 1f)
@@ -66,53 +59,29 @@ namespace Client {
                                 Time.fixedDeltaTime * _playerSettings.Value.GetSwipeMagnitude(magnitude) * horizontalMoveComp.RotationSpeed));
 
                             viewComp.Rigidbody.AddForce(horizontalMoveComp.Direction* _playerSettings.Value.GetSwipeMagnitude(magnitude) * horizontalMoveComp.MoveForce, ForceMode.Force);                        
-
-                            _xVelocity = viewComp.Rigidbody.velocity.x;
+                                                    
                         }
                         else
                         {
-                            StopHorizontalMove(viewComp.Rigidbody, _xStopAcceleration,  horizontalMoveComp.RotationSpeedToForwardDirection, ref _xVelocity);                           
+                            RotateToForwardDirection(viewComp.Rigidbody, horizontalMoveComp.RotationSpeedToForwardDirection, Time.fixedDeltaTime);                                                 
                         }
 
                     }
                     else
                     {
-                        StopHorizontalMove(viewComp.Rigidbody, _xStopAcceleration, horizontalMoveComp.RotationSpeedToForwardDirection, ref _xVelocity);      
-
-                    }
-                }
-                else if(viewComp.Transform.position.x > _sceneData.Value.XGroundBounds.y)
-                {                    
-                    KeepInBpounds(_sceneData.Value.XGroundBounds.y, viewComp.Rigidbody, horizontalMoveComp.RotationSpeedToForwardDirection, ref _xVelocity);
-                }
-                else if (viewComp.Transform.position.x < _sceneData.Value.XGroundBounds.x)
-                {                    
-                    KeepInBpounds(_sceneData.Value.XGroundBounds.x, viewComp.Rigidbody, horizontalMoveComp.RotationSpeedToForwardDirection, ref _xVelocity);
-                }
+                        RotateToForwardDirection(viewComp.Rigidbody, horizontalMoveComp.RotationSpeedToForwardDirection, Time.fixedDeltaTime);  
+                    }               
 
                 #endregion               
             }
         }
 
-        private void StopHorizontalMove(Rigidbody rB, float xAcceleration, float rotationSpeed,ref float xStopSpeed)
+        private void RotateToForwardDirection(Rigidbody rB,float rotationSpeed, float time )
         {
-            xStopSpeed = Mathf.Lerp(_xVelocity, 0f, Time.fixedDeltaTime * xAcceleration);
-
-            rB.velocity = new Vector3(_xVelocity, rB.velocity.y, rB.velocity.z);
-
             rB.MoveRotation(Quaternion.Lerp(rB.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up),
-                Time.fixedDeltaTime * rotationSpeed));
+               time * rotationSpeed));
         }
-
-
-        private void KeepInBpounds(float xBound, Rigidbody targetRB, float rotationSpeed, ref float xStopSpeed)
-        {
-
-            StopHorizontalMove(targetRB,100f, rotationSpeed, ref xStopSpeed);         
-
-            targetRB.MovePosition(new Vector3(xBound, targetRB.position.y, targetRB.position.z));
-            
-        }
+       
     }
 }
 
